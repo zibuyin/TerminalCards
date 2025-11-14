@@ -1,7 +1,7 @@
 import curses
 from imageinterminal import display_image
 import os
-
+import json
 
 def main(stdscr):
     # -------- Start of Initialization --------
@@ -9,8 +9,7 @@ def main(stdscr):
     curses.curs_set(0)  # Hide the cursor
     stdscr.nodelay(0)   # Make getch() blocking
     stdscr.keypad(1)    # Enable special keys to be interpreted (like arrows)
-    height, width = stdscr.getmaxyx()  # Get terminal size
-
+    max_height, max_width = stdscr.getmaxyx()
 
     # Initialize colors
     curses.start_color()
@@ -98,6 +97,20 @@ def main(stdscr):
     # -------- Start of defining menu options handlers -------- 
     def choose_deck_handler():
         stdscr.addstr(7, 0, "Choose a deck below", curses.color_pair(2) | curses.A_BOLD)
+        with open("cards/decks.json","r") as file:
+            try:
+                data = json.load(file)
+                stdscr.addstr(9, 0, str(data["decks"][0]["friendlyName"]), curses.color_pair(4))
+                # for i,deck in enumerate(decks):
+                #     stdscr.addstr(9 + i, 0, f"{i+1}. {deck['name']}", curses.color_pair(4))
+            except json.JSONDecodeError:
+                stdscr.addstr(9, 0, "No decks found. Please create a deck first.", curses.color_pair(1))
+        
+        stdscr.addstr(max_height - 1, 0, "Press [B] to return...", curses.color_pair(2) | curses.A_BOLD)
+        stdscr.refresh()
+        backto_menu_loop()
+
+        
 
     def create_deck_handler():
         stdscr.addstr(7, 0, "Create a deck", curses.color_pair(2) | curses.A_BOLD)
@@ -105,7 +118,7 @@ def main(stdscr):
         stdscr.addstr(7, 0, "Settings", curses.color_pair(2) | curses.A_BOLD)
     def credits_handler():
         stdscr.clear()
-        max_height, max_width = stdscr.getmaxyx()
+        
         show_splash()
         stdscr.addstr(6, 0, "─" * min(70, max_width - 1), curses.color_pair(3))
         stdscr.addstr(7, 0, "MIT License", curses.color_pair(2) | curses.A_BOLD)
@@ -142,15 +155,9 @@ def main(stdscr):
 
 
 
-        # Display "Press any key" at the bottom, safely
-        prompt_line = min(8 + len(license_text) + 2, max_height - 1)
-        # try:
-        #     stdscr.addstr(prompt_line, 0, "Press any key to return...", curses.color_pair(2) | curses.A_BOLD)
-        # except curses.error:
-        #     # If that fails, try at the very bottom
+
         stdscr.addstr(max_height - 1, 0, "Press [B] to return...", curses.color_pair(2) | curses.A_BOLD)
         stdscr.refresh()
-
         backto_menu_loop()
 
 
