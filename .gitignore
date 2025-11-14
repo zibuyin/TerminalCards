@@ -1,0 +1,9 @@
+/.idea
+/.vscode
+/.venv
+/build/
+/.cache/
+/.ropeproject
+*.DS_Store
+/__pycache__/
+.prettierrc
