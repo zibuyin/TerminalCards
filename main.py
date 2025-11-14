@@ -30,11 +30,18 @@ def main(stdscr):
     # -------- End of Initialization --------
 
     # -------- Start of show_splash function --------
-    def first_boot_init():
-        os.mkdir("cards", exist_ok=True)
+    def filesystem_init():
+        try:
+            os.mkdir("cards")
+        except FileExistsError:
+            pass
+        file = open("cards/decks.json", "a+")
+        file.close()
+    filesystem_init()
+        
         
     def show_splash():
-        # ASCII art stored as raw string to avoid escape sequence issues
+        # ASCII art stored as raw string to avoid escape sequence issues(cough cough... "\" break stuff")
         ascii_art = r"""
  _____                    _             _     ___              _     
 /__   \___ _ __ _ __ ___ (_)_ __   __ _| |   / __\__ _ _ __ __| |___ 
@@ -48,12 +55,17 @@ def main(stdscr):
         
     # -------- End of show_splash function --------
 
-    show_splash()
-    
+    def backto_menu_loop():
+        while True:
+            if(stdscr.getkey().lower() == 'b'):
+                selection_handler(menu_options("KEY_UP"))
+                break
 
     
     # -------- Start of menu_options function --------
     def menu_options(key_input, selectedOption=0):
+        stdscr.clear()
+        show_splash()
         # Check for Enter key - it can be '\n', '\r', or KEY_ENTER 
         stdscr.addstr(7, 0, "Choose an option below to start:", curses.color_pair(2) | curses.A_BOLD)
         if key_input == "KEY_UP":
@@ -88,9 +100,9 @@ def main(stdscr):
         stdscr.addstr(7, 0, "Choose a deck below", curses.color_pair(2) | curses.A_BOLD)
 
     def create_deck_handler():
-        pass
+        stdscr.addstr(7, 0, "Create a deck", curses.color_pair(2) | curses.A_BOLD)
     def settings_handler():
-        pass
+        stdscr.addstr(7, 0, "Settings", curses.color_pair(2) | curses.A_BOLD)
     def credits_handler():
         stdscr.clear()
         max_height, max_width = stdscr.getmaxyx()
@@ -136,12 +148,16 @@ def main(stdscr):
         #     stdscr.addstr(prompt_line, 0, "Press any key to return...", curses.color_pair(2) | curses.A_BOLD)
         # except curses.error:
         #     # If that fails, try at the very bottom
-        stdscr.addstr(max_height - 1, 0, "Press any key to return...", curses.color_pair(2) | curses.A_BOLD)
-        
+        stdscr.addstr(max_height - 1, 0, "Press [B] to return...", curses.color_pair(2) | curses.A_BOLD)
         stdscr.refresh()
-        stdscr.getch()
-        stdscr.clear()
-        show_splash()
+
+        backto_menu_loop()
+
+
+                
+            
+
+
 
     def exit_handler():
         exit(0)
@@ -164,8 +180,7 @@ def main(stdscr):
         if selectedOption == 4:
             exit_handler()
 
-    selectedOption =menu_options("KEY_UP")
-    selection_handler(selectedOption)
+    selection_handler(menu_options("KEY_UP"))
       
 
         
